@@ -12,6 +12,6 @@ public class RainbowOaksFabric implements ModInitializer {
     public void onInitialize() {
         RainbowOaks.init();
 
-        BiomeModifications.addFeature(biomeSelectionContext -> biomeSelectionContext.hasTag(RainbowOaksBiomeTags.HAS_RAINBOW_OAK_TREES), GenerationStep.Decoration.VEGETAL_DECORATION, RainbowOaksVegetationPlacements.FLOWER_FOCUS_RAINBOW_OAK_TREES);
+        BiomeModifications.addFeature(biomeSelectionContext -> biomeSelectionContext.hasTag(RainbowOaksBiomeTags.HAS_RAINBOW_OAK_TREES), GenerationStep.Decoration.VEGETAL_DECORATION, RainbowOaksVegetationPlacements.FLOWER_FOREST_RAINBOW_OAK_TREES);
     }
 }

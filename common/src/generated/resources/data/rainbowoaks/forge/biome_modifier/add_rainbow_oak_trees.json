@@ -1,6 +1,6 @@
 {
   "type": "forge:add_features",
   "biomes": "#rainbowoaks:has_rainbow_oak_trees",
-  "features": "rainbowoaks:flower_focus_rainbow_oak_trees",
+  "features": "rainbowoaks:flower_forest_rainbow_oak_trees",
   "step": "vegetal_decoration"
 }
