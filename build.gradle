@@ -1,33 +1,36 @@
 plugins {
-    id 'fabric-loom' version '1.2-SNAPSHOT' apply(false)
-    id 'net.minecraftforge.gradle' version '[6.0,6.2)' apply(false)
-    id 'org.spongepowered.gradle.vanilla' version '0.2.1-SNAPSHOT' apply(false)
-    id("org.spongepowered.mixin") version "0.7-SNAPSHOT" apply(false)
+    id 'fabric-loom' version "${loom_version}" apply(false)
 }
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'maven-publish'
+    apply plugin: 'signing'
+
+    base {
+        archivesName = "${mod_id}-${project.name}-${minecraft_version}"
+    }
 
     java.toolchain.languageVersion = JavaLanguageVersion.of(17)
     java.withSourcesJar()
     java.withJavadocJar()
-        
+
     jar {
         from(rootProject.file("LICENSE")) {
             rename { "${it}_${mod_name}" }
         }
         manifest {
             attributes([
-                'Specification-Title'     : mod_name,
-                'Specification-Vendor'    : mod_author,
-                'Specification-Version'   : project.jar.archiveVersion,
-                'Implementation-Title'    : project.name,
-                'Implementation-Version'  : project.jar.archiveVersion,
-                'Implementation-Vendor'   : mod_author,
-                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                'Timestamp'               : System.currentTimeMillis(),
-                'Built-On-Java'           : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
-                'Built-On-Minecraft'      : minecraft_version
+                    'Specification-Title'     : mod_name,
+                    'Specification-Vendor'    : mod_author,
+                    'Specification-Version'   : project.jar.archiveVersion,
+                    'Implementation-Title'    : project.name,
+                    'Implementation-Version'  : project.jar.archiveVersion,
+                    'Implementation-Vendor'   : mod_author,
+                    'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                    'Timestamp'               : System.currentTimeMillis(),
+                    'Built-On-Java'           : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
+                    'Built-On-Minecraft'      : minecraft_version
             ])
         }
     }
@@ -39,52 +42,155 @@ subprojects {
     }
 
     repositories {
-        mavenCentral()
         maven {
-            name = 'Sponge / Mixin'
-            url = 'https://repo.spongepowered.org/repository/maven-public/'
+            name = 'Parchment'
+            url = 'https://maven.parchmentmc.org'
+            content {
+                includeGroupAndSubgroups 'org.parchmentmc.data'
+            }
         }
         maven {
-            name = 'BlameJared Maven (JEI / CraftTweaker / Bookshelf)'
-            url = 'https://maven.blamejared.com'
+            name = 'Fabric'
+            url = 'https://maven.fabricmc.net/'
+            content {
+                includeGroupAndSubgroups 'net.fabricmc.fabric-api'
+            }
+        }
+        maven {
+            name = "Cloth Config"
+            url "https://maven.shedaniel.me/"
+            content {
+                includeGroupAndSubgroups 'me.shedaniel'
+                includeGroupAndSubgroups 'dev.architectury'
+            }
+        }
+        maven {
+            name = "Mod Menu"
+            url 'https://maven.terraformersmc.com/releases'
+            content {
+                includeGroupAndSubgroups 'com.terraformersmc'
+            }
+        }
+        maven {
+            name = "Modrinth"
+            url = "https://api.modrinth.com/maven"
+            content {
+                includeGroupAndSubgroups 'maven.modrinth'
+            }
+        }
+        maven {
+            name = "Mixin Extras"
+            url = "https://jitpack.io/"
+            content {
+                includeGroupAndSubgroups 'com.github.llamalad7.mixinextras'
+            }
+        }
+
+        // Non-specific
+        maven {
+            name = 'NeoForged'
+            url = 'https://maven.neoforged.net/releases'
+        }
+        maven {
+            name = 'Mojang and Mixins'
+            url = 'https://repo.spongepowered.org/repository/maven-public/'
+        }
+    }
+
+    processResources {
+        var replaceProperties = [
+                mod_name: mod_name,
+                resource_pack_format_number: resource_pack_format_number,
+                data_pack_format_number: data_pack_format_number,
+                mod_id: mod_id,
+                major_fml_version: major_fml_version,
+                version: project.version,
+                description: project.description,
+                mod_author: mod_author,
+                contributors: contributors,
+                license: license,
+                icon: icon,
+                github_name: github_name,
+                forge_version: forge_version,
+                fabric_loader_version: fabric_loader_version,
+                fabric_version: fabric_version,
+                minecraft_version: minecraft_version,
+                next_minecraft_version: next_minecraft_version,
+                tommylib_version: tommylib_version
+        ]
+        inputs.properties replaceProperties
+
+        filesMatching(['META-INF/mods.toml','fabric.mod.json','**/pack.mcmeta','*.mixins.json']) {
+            expand replaceProperties + [project: project]
         }
     }
 
     tasks.withType(JavaCompile).configureEach {
-    
+
         it.options.encoding = 'UTF-8'
-        it.options.getRelease().set(17)
-    }
-
-    processResources {
-        def expandProps = [
-                "version": version,
-                "group": project.group, //Else we target the task's group.
-                "minecraft_version": minecraft_version,
-                "forge_version": forge_version,
-                "forge_loader_version_range": forge_loader_version_range,
-                "forge_version_range": forge_version_range,
-                "minecraft_version_range": minecraft_version_range,
-                "fabric_version": fabric_version,
-                "fabric_loader_version": fabric_loader_version,
-                "mod_name": mod_name,
-                "mod_author": mod_author,
-                "mod_id": mod_id,
-                "license": license,
-                "description": project.description
-        ]
-
-        filesMatching(['pack.mcmeta', 'fabric.mod.json', 'META-INF/mods.toml', '*.mixins.json']) {
-            expand expandProps
-        }
-        inputs.properties(expandProps)
+        it.options.release = 17
     }
 
     // Disables Gradle's custom module metadata from being published to maven. The
     // metadata includes mapped dependencies which are not reasonably consumable by
     // other mod developers.
-    tasks.withType(GenerateModuleMetadata).configureEach {
+    tasks.withType(GenerateModuleMetadata) {
 
         enabled = false
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                groupId = project.group
+                artifactId = base.archivesName.get()
+                version project.version
+                from components.java
+
+                pom {
+                    name = project.mod_name
+                    description = project.description
+                    url = "https://github.com/thomasglasser/${github_name}/wiki"
+                    licenses {
+                        license {
+                            name = project.license
+                            url = project.license_url
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = project.mod_author
+                            name = project.mod_author
+                        }
+                    }
+                    issueManagement {
+                        system = 'GitHub'
+                        url = "https://github.com/thomasglasser/${github_name}/issues"
+                    }
+                    scm
+                            {
+                                connection = "scm:git:git://github.com/thomasglasser/${github_name}.git"
+                                developerConnection = "scm:git:ssh://github.com:thomasglasser/${github_name}.git"
+                                url = "https://github.com/thomasglasser/${github_name}/tree/${minecraft_version}"
+                            }
+                }
+            }
+        }
+
+        repositories {
+            maven {
+                credentials {
+                    username = project.findProperty("MAVEN_USER") ?: System.getenv("MAVEN_USER")
+                    password = project.findProperty("MAVEN_PASSWORD") ?: System.getenv("MAVEN_PASSWORD")
+                }
+
+                url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            }
+        }
+    }
+
+    signing {
+        useGpgCmd()
+        sign publishing.publications
     }
 }

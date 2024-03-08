@@ -1,0 +1,33 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_logs": {
+      "conditions": {
+        "items": [
+          {
+            "tag": "rainbowoaks:rainbow_logs"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "rainbowoaks:oak_planks_from_rainbow_logs"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_logs",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "rainbowoaks:oak_planks_from_rainbow_logs"
+    ]
+  },
+  "sends_telemetry_event": false
+}

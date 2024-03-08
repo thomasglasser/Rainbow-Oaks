@@ -1,36 +1,49 @@
 {
     "schemaVersion": 1,
-    "id": "mod_id",
+    "id": "${mod_id}",
     "version": "${version}",
+
     "name": "${mod_name}",
     "description": "${description}",
     "authors": [
         "${mod_author}"
     ],
+    "contributors": [
+        "${contributors}"
+    ],
     "contact": {
-        "homepage": "https://fabricmc.net/",
-        "sources": "https://github.com/FabricMC/fabric-example-mod"
+        "homepage": "https://github.com/thomasglasser/${github_name}/wiki",
+        "sources": "https://github.com/thomasglasser/${github_name}",
+        "issues": "https://github.com/thomasglasser/${github_name}/issues"
     },
+
     "license": "${license}",
-    "icon": "assets/modid/${mod_id}.png",
+    "icon": "${icon}",
     "environment": "*",
     "entrypoints": {
         "main": [
-            "com.example.examplemod.ExampleMod"
+            "dev.thomasglasser.aliysium.rainbowoaks.RainbowOaksFabric"
+        ],
+        "client": [
+            "dev.thomasglasser.aliysium.rainbowoaks.client.RainbowOaksFabricClient"
         ]
     },
     "mixins": [
         "${mod_id}.mixins.json",
         "${mod_id}.fabric.mixins.json"
     ],
+
+    "accessWidener": "${mod_id}.accesswidener",
+
     "depends": {
-        "fabricloader": ">=0.14",
-        "fabric": "*",
-        "minecraft": "1.20",
+        "fabricloader": ">=${fabric_loader_version}",
+        "fabric-api": ">=${fabric_version}",
+        "minecraft": ">=${minecraft_version}",
         "java": ">=17"
     },
-    "suggests": {
-        "another-mod": "*"
+    "custom": {
+        "mc-publish": {
+            "loaders": ["fabric", "quilt"]
+        }
     }
 }
-  

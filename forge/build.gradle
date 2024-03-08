@@ -1,12 +1,11 @@
 plugins {
     id 'idea'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle'
-    id 'org.spongepowered.mixin'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id("org.spongepowered.mixin") version "0.7-SNAPSHOT"
+    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
 }
-base {
-    archivesName = "${mod_name}-forge-${minecraft_version}"
-}
+
 mixin {
     add(sourceSets.main, "${mod_id}.refmap.json")
 
@@ -15,7 +14,7 @@ mixin {
 }
 
 minecraft {
-    mappings channel: 'official', version: minecraft_version
+    mappings channel: 'parchment', version: "${parchment_version}-1.20.1"
 
     copyIdeResources = true //Calls processResources when in dev
 
@@ -58,7 +57,7 @@ minecraft {
         data {
             workingDirectory project.file('run')
             ideaModule "${rootProject.name}.${project.name}.main"
-            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            args '--mod', mod_id, '--all', '--output', file('../common/src/generated/resources/'), '--existing', file('../common/src/main/resources/')
             taskName 'Data'
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
@@ -78,6 +77,21 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     compileOnly project(":common")
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT:processor")
+
+//    implementation("dev.thomasglasser.tommylib:tommylib-neoforge-${minecraft_version}:${tommylib_version}") {
+//        transitive = false
+//    }
+
+    // Runtime
+    runtimeOnly fg.deobf("maven.modrinth:jade:${jade_version}-forge")
+    runtimeOnly fg.deobf("me.shedaniel:RoughlyEnoughItems-forge:$rei_version")
+    runtimeOnly fg.deobf("me.shedaniel.cloth:cloth-config-forge:$cloth_config_version")
+    runtimeOnly fg.deobf("dev.architectury:architectury-forge:$architectury_version")
+
+    // JarJar
+//    jarJar(group: "dev.thomasglasser.tommylib", name: "tommylib-neoforge-${minecraft_version}", version: "[${tommylib_version},${tommylib_next_major_version})") {
+//        transitive = false
+//    }
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -86,6 +100,7 @@ tasks.withType(JavaCompile).configureEach {
 tasks.withType(Javadoc).configureEach {
     source(project(":common").sourceSets.main.allJava)
 }
+
 tasks.named("sourcesJar", Jar) {
     from(project(":common").sourceSets.main.allSource)
 }
@@ -96,17 +111,6 @@ processResources {
 
 jar.finalizedBy('reobfJar')
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifactId base.archivesName.get()
-            from components.java
-            fg.component(it)
-        }
-    }
-    repositories {
-        maven {
-            url "file://" + System.getenv("local_maven")
-        }
-    }
+tasks.named('jarJar') {
+    archiveClassifier = ''
 }
