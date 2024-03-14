@@ -73,12 +73,34 @@ minecraft {
 
 sourceSets.main.resources.srcDir 'src/generated/resources'
 
+//jarJar.enable()
+//def jarJarRangeAttribute = Attribute.of("jarJarRange", String.class);
+//configurations {
+//    include
+//    jarJar {
+//        dependencies.addAllLater(project.provider {
+//            project.configurations.include.allDependencies.collect {
+//                def newDep = it.copy()
+//                if (newDep instanceof ModuleDependency) {
+//                    newDep.attributes {
+//                        it.attribute(jarJarRangeAttribute, "[$newDep.version,)" as String)
+//                    }
+//                    newDep.setTransitive(false)
+//                } else {
+//                    throw new RuntimeException("Attempted to 'include' non-module dependency")
+//                }
+//                newDep
+//            }
+//        })
+//    }
+//}
+
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     compileOnly project(":common")
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT:processor")
 
-//    implementation("dev.thomasglasser.tommylib:tommylib-neoforge-${minecraft_version}:${tommylib_version}") {
+//    include implementation("dev.thomasglasser.tommylib:tommylib-neoforge-${minecraft_version}:${tommylib_version}") {
 //        transitive = false
 //    }
 
@@ -88,10 +110,6 @@ dependencies {
     runtimeOnly fg.deobf("me.shedaniel.cloth:cloth-config-forge:$cloth_config_version")
     runtimeOnly fg.deobf("dev.architectury:architectury-forge:$architectury_version")
 
-    // JarJar
-//    jarJar(group: "dev.thomasglasser.tommylib", name: "tommylib-neoforge-${minecraft_version}", version: "[${tommylib_version},${tommylib_next_major_version})") {
-//        transitive = false
-//    }
 }
 
 tasks.withType(JavaCompile).configureEach {
